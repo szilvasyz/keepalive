@@ -1,0 +1,6 @@
+*.bin
+*.elf
+*.map
+*.merged.bin
+.vscode/
+build/
