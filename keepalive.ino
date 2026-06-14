@@ -17,8 +17,9 @@ Partition: Default 4MB is enough
 USB Mode: USB-OTG (TinyUSB)
 USB CDC On Boot: Enabled
 
-Note:
-PSRAM is not used by this project.
+Notes:
+- PSRAM is not used by this project.
+- If RGB colors are wrong on another board, adjust channel order in setRgb().
 
 N16R8 dev module notes:
 - Use the connector labelled "USB"
@@ -28,6 +29,9 @@ N16R8 dev module notes:
 */
 
 
+//
+// Build-phase Board Checking
+//
 #ifndef ARDUINO_USB_MODE
 #error This ESP32 SoC has no Native USB interface
 #elif ARDUINO_USB_MODE == 1
@@ -36,21 +40,27 @@ void setup() {}
 void loop() {}
 #endif
 
-
-#include "USB.h"
-#include "USBHIDMouse.h"
-
-USBHIDMouse Mouse;
-
-
+//
+// Operating Parameters
+//
 #define BUTTON_PIN 0
-#define BUTTON_DEBOUNCE_MS 50 /* typical debounce time for tact button */
+#define BUTTON_DEBOUNCE_MS 50UL /* typical debounce time for tact button */
 
 #define LED_FLASH_MS 250UL
+#define LED_INTENSITY 8 /* 0 - 255, value for RGB channels */
 
 #define MOVE_INTERVAL_MS 30000UL /* use 3000UL for testing */
 #define MOVE_BACK_DELAY_MS 100UL
 #define MOVE_X 1 /* use 100 for testing */
+
+
+//
+// Main Code
+//
+#include "USB.h"
+#include "USBHIDMouse.h"
+
+USBHIDMouse Mouse;
 
 
 bool enabled = false;
@@ -70,16 +80,16 @@ void updateLed() {
   uint32_t now = millis();
 
   if (blueFlashUntil && now < blueFlashUntil) {
-    setRgb(0, 0, 4);
+    setRgb(0, 0, LED_INTENSITY);
     return;
   }
 
   blueFlashUntil = 0;
 
   if (enabled) {
-    setRgb(0, 2, 0);  // active: green
+    setRgb(0, LED_INTENSITY, 0);  // active: green
   } else {
-    setRgb(2, 0, 0);  // inactive: red
+    setRgb(LED_INTENSITY, 0, 0);  // inactive: red
   }
 }
 
@@ -123,7 +133,7 @@ void updateKeepAlive() {
 
 void setup() {
 
-  rgbLedWrite(RGB_BUILTIN, 2, 2, 2);  // white: start
+  setRgb(LED_INTENSITY, LED_INTENSITY, LED_INTENSITY);  // white: start
 
   delay(3000);
 
