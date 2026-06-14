@@ -1,15 +1,30 @@
 /*
-SUPERMINI
-----------
-Flash: 4MB
-PSRAM: QSPI
-Partition: Default 4MB with SPIFFS
+Recommended settings for KeepAlive:
 
-N16R8
-------
-Flash: 16MB
-PSRAM: OPI
-Partition: 16MB Flash (3MB APP/9.9MB FATFS)
+ESP32-S3 SuperMini
+------------------
+Flash: 4MB
+PSRAM: Disabled for this project
+Partition: Default 4MB with SPIFFS
+USB Mode: USB-OTG (TinyUSB)
+USB CDC On Boot: Enabled
+
+ESP32-S3 N16R8 dev module
+-------------------------
+Flash: 4MB or 16MB
+PSRAM: Disabled for this project
+Partition: Default 4MB is enough
+USB Mode: USB-OTG (TinyUSB)
+USB CDC On Boot: Enabled
+
+Note:
+PSRAM is not used by this project.
+
+N16R8 dev module notes:
+- Use the connector labelled "USB"
+- Built-in RGB LED may require solder jumper to connect it to the GPIO.
+  If the jumper is open, firmware still works but status LED is not visible.
+
 */
 
 
@@ -29,13 +44,13 @@ USBHIDMouse Mouse;
 
 
 #define BUTTON_PIN 0
-#define BUTTON_DEBOUNCE_MS 50  /* typical debounce time for tact button */
+#define BUTTON_DEBOUNCE_MS 50 /* typical debounce time for tact button */
 
 #define LED_FLASH_MS 250UL
 
-#define MOVE_INTERVAL_MS 30000UL  /* use 3000UL for testing */
+#define MOVE_INTERVAL_MS 30000UL /* use 3000UL for testing */
 #define MOVE_BACK_DELAY_MS 100UL
-#define MOVE_X 1  /* use 100 for testing */
+#define MOVE_X 1 /* use 100 for testing */
 
 
 bool enabled = false;
@@ -62,9 +77,9 @@ void updateLed() {
   blueFlashUntil = 0;
 
   if (enabled) {
-    setRgb(0, 2, 0);   // active: green
+    setRgb(0, 2, 0);  // active: green
   } else {
-    setRgb(2, 0, 0);   // inactive: red
+    setRgb(2, 0, 0);  // inactive: red
   }
 }
 
@@ -107,7 +122,7 @@ void updateKeepAlive() {
 
 
 void setup() {
-  
+
   rgbLedWrite(RGB_BUILTIN, 2, 2, 2);  // white: start
 
   delay(3000);
@@ -123,7 +138,6 @@ void setup() {
   Serial.printf("PSRAM free: %u\n", ESP.getFreePsram());
 
   updateLed();
-
 }
 
 void loop() {
@@ -131,6 +145,4 @@ void loop() {
   updateButton();
   updateKeepAlive();
   updateLed();
-
 }
-
